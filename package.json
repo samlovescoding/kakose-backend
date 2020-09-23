@@ -1,0 +1,19 @@
+{
+  "name": "kakose-server",
+  "version": "0.0.1",
+  "description": "Kakose Golf Mobile Application API",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/samlovescoding/kakose-backend.git"
+  },
+  "author": "Sampan Verma",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/samlovescoding/kakose-backend/issues"
+  },
+  "homepage": "https://github.com/samlovescoding/kakose-backend#readme"
+}

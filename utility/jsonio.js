@@ -4,6 +4,7 @@ message = (res, data, code) => {
   // this function, you are better righting complete line below.
   res.status(code).json(data);
 };
+
 error = (res, error = "Server stopped responding", code = 500) => {
   // This is an alias of messages to support better typehinting in code editors
   // Also it improves code legibilaty.
@@ -12,6 +13,23 @@ error = (res, error = "Server stopped responding", code = 500) => {
   }
   message(res, { error }, code);
 };
+
+// This function is to be used with then(serveSuccess(res))
+// It will serve the response.
+serveSuccess = (res) => {
+  return function (data) {
+    success(res, data);
+  };
+};
+
+// This function is to be used with promise error catching
+// catch(caughtError(res)). It will serve the error over 500.
+caughtError = (res) => {
+  return (err) => {
+    error(res, err);
+  };
+};
+
 success = (res, data, code = 200) => {
   // This is an alias of messages to support better typehinting in code editors
   // Also it improves code legibilaty.
@@ -20,4 +38,6 @@ success = (res, data, code = 200) => {
 module.exports = {
   error,
   success,
+  caughtError,
+  serveSuccess,
 };

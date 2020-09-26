@@ -13,33 +13,6 @@ const {
 
 const user = require("../models/user"); // This is supposed to be a mongoose model.
 
-// PUT /:id - This will perform any updates to the user
-router.put("/:id", (req, res, next) => {
-  user
-    .findOneAndUpdate(
-      {
-        _id: req.params.id,
-        ...req.body.filters,
-      },
-      req.body
-    )
-    .exec()
-    .then(serveSuccess(res))
-    .catch(caughtError(res));
-});
-
-// DELETE /:id - This will delete a user.
-router.delete("/:id", (req, res, next) => {
-  user
-    .deleteOne({
-      _id: req.params.id,
-      ...req.body.filters,
-    })
-    .exec()
-    .then(serveSuccess(res))
-    .catch(caughtError(res));
-});
-
 // POST /login - This handle user login
 router.post(
   "/login",
@@ -113,6 +86,37 @@ router.put(
       .catch(caughtError(res));
   }
 );
+
+// PATCH /:id - This will perform any updates to the user
+router.patch("/:id", (req, res, next) => {
+  user
+    .findOneAndUpdate(
+      {
+        _id: req.params.id,
+        ...req.body.filters,
+      },
+      req.body
+    )
+    .exec()
+    .then((result) => {
+      success(res, {
+        message: "User was updated.",
+      });
+    })
+    .catch(caughtError(res));
+});
+
+// DELETE /:id - This will delete a user.
+router.delete("/:id", (req, res, next) => {
+  user
+    .deleteOne({
+      _id: req.params.id,
+      ...req.body.filters,
+    })
+    .exec()
+    .then(serveSuccess(res))
+    .catch(caughtError(res));
+});
 
 // GET / - Lists all users
 router.get("/", (req, res, next) => {

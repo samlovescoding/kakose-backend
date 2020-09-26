@@ -100,7 +100,7 @@ router.put(
 );
 
 // PUT /:id - This will perform any updates to the member
-router.put("/:id", (req, res, next) => {
+router.patch("/:id", (req, res, next) => {
   member
     .findOneAndUpdate(
       {
@@ -110,7 +110,11 @@ router.put("/:id", (req, res, next) => {
       req.body
     )
     .exec()
-    .then(serveSuccess(res))
+    .then((result) => {
+      return success(res, {
+        message: "Member was updated.",
+      });
+    })
     .catch(caughtError(res));
 });
 
@@ -130,7 +134,7 @@ router.delete("/:id", (req, res, next) => {
 router.get("/", (req, res, next) => {
   member
     .find(req.body.filters)
-    .select("_id name email role")
+    .select("_id name email memberType")
     .exec()
     .then((members) => {
       success(res, members);
@@ -145,7 +149,9 @@ router.get("/:id", (req, res, next) => {
       _id: req.params.id,
       ...req.body.filters,
     })
-    .select("_id name role email")
+    .select(
+      "_id name email sex address postalCode phoneNumber memberType dateOfBirth memberSince"
+    )
     .exec()
     .then(serveSuccess(res))
     .catch(caughtError(res));

@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const schema = mongoose.Schema(
   {
-    _id: { type: mongoose.Schema.Types.ObjectId, required: true },
+    _id: { type: mongoose.Schema.Types.ObjectId },
     name: { type: String, required: true },
     role: { type: String, required: true, default: "admin" },
     email: {

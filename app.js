@@ -4,6 +4,7 @@ const morgan = require("morgan");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const router = require("./router");
+const config = require("./middlewares/config");
 
 // Database Connection
 mongoose.connect(process.env.MONGO_URI, {
@@ -36,7 +37,7 @@ app.use((req, res, next) => {
 });
 
 // Import all the routes
-app.use("/", router);
+app.use("/", config, router);
 
 // Error Handling
 app.use((req, res, next) => {

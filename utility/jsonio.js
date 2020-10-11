@@ -11,6 +11,15 @@ error = (res, error = "Server stopped responding", code = 500) => {
   if (process.env.APP_MODE === "development") {
     console.error(error);
   }
+
+  // For base javascript errors.
+  if (error instanceof Error) {
+    error = {
+      name: error.name,
+      message: error.message,
+    };
+    code = error.code || 500;
+  }
   return message(res, { error }, code);
 };
 

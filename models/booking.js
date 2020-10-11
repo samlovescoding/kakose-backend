@@ -4,7 +4,7 @@ const schema = mongoose.Schema(
   {
     _id: mongoose.Schema.Types.ObjectId,
     timing: { type: Date, required: true },
-    bookedBy: {
+    memberBookedBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "member",
       required: true,
@@ -13,4 +13,4 @@ const schema = mongoose.Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model("user", schema);
+module.exports = mongoose.model("booking", schema);

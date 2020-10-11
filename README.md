@@ -10,3 +10,11 @@
 ### Starting
 
 1. To start the api server, run `npm start` in the project root.
+
+### Configuration
+
+Newer settings can be created as well as old ones can be patched. But
+for the application to work properly, here is a list of all the required
+configurations. If they do not exist in your database, your might not
+work properly. Please take some extra time to check the settings in the
+database.

@@ -7,14 +7,18 @@ const configuration = require("../models/configuration"); // This is supposed to
 
 // GET / - Lists all configurations
 router.get("/", (req, res, next) => {
-  configuration
-    .find(req.body.filters)
-    .select("_id key value type")
-    .exec()
-    .then((configurations) => {
-      success(res, configurations);
-    })
-    .catch(caughtError(res));
+  success(res, req.config);
+
+  // No database interaction is needed now
+  //
+  // configuration
+  //   .find(req.body.filters)
+  //   .select("_id key value type")
+  //   .exec()
+  //   .then((configurations) => {
+  //     success(res, configurations);
+  //   })
+  //   .catch(caughtError(res));
 });
 
 // GET /:type - Display full information about a configuration

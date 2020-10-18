@@ -18,3 +18,8 @@ for the application to work properly, here is a list of all the required
 configurations. If they do not exist in your database, your might not
 work properly. Please take some extra time to check the settings in the
 database.
+
+#### Required Configuration Keys
+
+1. tee_time_length
+2. tee_time_max_bookings

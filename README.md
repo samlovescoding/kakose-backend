@@ -23,3 +23,5 @@ database.
 
 1. tee_time_length
 2. tee_time_max_bookings
+3. club_opening_time
+4. club_closing_time

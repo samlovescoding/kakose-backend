@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
 const { success, error } = require("../utility/jsonio");
-const memberAuth = require("../middlewares/memberAuth");
+const onlyUsers = require("../middlewares/onlyUsers");
 const booking = require("../models/booking"); // This is supposed to be a mongoose model.
 const { body } = require("express-validator");
 const randomDate = require("../utility/randomDate");
@@ -36,7 +36,7 @@ router.get("/", [body("date")], async (req, res, next) => {
 });
 
 // POST / - Create a new booking
-router.post("/", memberAuth, [body("timing")], async (req, res, next) => {
+router.post("/", onlyUsers, [body("timing")], async (req, res, next) => {
   try {
     let newBooking = new booking({
       _id: mongoose.Types.ObjectId(),
@@ -50,7 +50,8 @@ router.post("/", memberAuth, [body("timing")], async (req, res, next) => {
   }
 });
 
-router.post("/ballot", memberAuth, [body("date")], async (req, res, next) => {
+// POST /ballot - Create a new booking via ballot
+router.post("/ballot", onlyUsers, [body("date")], async (req, res, next) => {
   let date = new Date(req.body.date);
 
   let bookingTime = randomDate(date);

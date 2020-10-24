@@ -20,6 +20,11 @@ error = (res, error = "Server stopped responding", code = 500) => {
     };
     code = error.code || 500;
   }
+  // For an array of errors
+  if (Array.isArray(error)) {
+    return message(res, { errors: error, length: error.length }, 500);
+  }
+
   return message(res, { error }, code);
 };
 

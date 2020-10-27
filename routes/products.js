@@ -29,25 +29,21 @@ router.get("/:id", async (req, res, next) => {
 });
 
 // POST / - Create a new product
-router.post(
-  "/",
-  [body("name").exists(), body("price").exists(), body("category").exists()],
-  async (req, res, next) => {
-    try {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return error(res, errors.array());
-      }
-      const product = new Product(...req.body);
-      await product.save();
-      success(res, {
-        message: "Product saved!",
-      });
-    } catch (e) {
-      error(e);
+router.post("/", [body("name").exists(), body("price").exists(), body("category").exists()], async (req, res, next) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return error(res, errors.array());
     }
+    const product = new Product(...req.body);
+    await product.save();
+    success(res, {
+      message: "Product saved!",
+    });
+  } catch (e) {
+    error(e);
   }
-);
+});
 
 // PATCH /:id - Update an existing product
 router.patch("/:id", async (req, res, next) => {

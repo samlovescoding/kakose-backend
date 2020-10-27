@@ -21,7 +21,7 @@ database.
 
 #### Required Configuration Keys
 
-1. tee_time_length
-2. tee_time_max_bookings
-3. club_opening_time
-4. club_closing_time
+1. tee_time_length (minutes)
+2. tee_time_max_bookings (in quantity)
+3. club_opening_time (minutes)
+4. club_closing_time (minutes)

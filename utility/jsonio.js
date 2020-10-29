@@ -22,7 +22,17 @@ error = (res, error = "Server stopped responding", code = 500) => {
   }
   // For an array of errors
   if (Array.isArray(error)) {
-    return message(res, { errors: error, length: error.length }, 500);
+    if (error.length === 1) {
+      error = error[0];
+      code = error.code || 500;
+    } else {
+      return message(res, { error: "AggregateError", errors: error, length: error.length }, 500);
+    }
+  }
+
+  if (error.msg != null && error.message == null) {
+    error.message = error.msg;
+    error.msg = undefined;
   }
 
   return message(res, { error }, code);

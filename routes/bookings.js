@@ -4,34 +4,16 @@ const mongoose = require("mongoose");
 const { success, error } = require("../utility/jsonio");
 const onlyUsers = require("../middlewares/onlyUsers");
 const booking = require("../models/booking"); // This is supposed to be a mongoose model.
-const { body } = require("express-validator");
+const { body, query } = require("express-validator");
 const randomDate = require("../utility/randomDate");
+const numberToEnglish = require("../utility/numberToEnglish");
 
-router.get("/", [body("date")], async (req, res) => {
-  try {
-    let date = new Date(req.body.date);
-    let dateStart = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0);
-    let dateEnd = new Date(new Date().setDate(dateStart.getDate() + 1));
-
-    // Find all the bookings in between the given date
-    let result = await booking.find({
-      timing: {
-        $gte: dateStart,
-        $lte: dateEnd,
-      },
-      ...req.body.filters,
-    });
-    success(res, result);
-  } catch (e) {
-    error(res, e);
-  }
-});
-
-router.get("/timed", [body("date")], async (req, res) => {
+// GET /timed - Get all bookings of a day divided in times
+router.get("/", [query("date").exists()], async (req, res) => {
   try {
     console.log("You are requesting timed booking. This is a heavily looped route and must be handled client-side.");
 
-    let date = new Date(req.body.date);
+    let date = new Date(req.query.date);
     let dateStart = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0);
     let dateEnd = new Date(new Date().setDate(dateStart.getDate() + 1));
 
@@ -41,7 +23,7 @@ router.get("/timed", [body("date")], async (req, res) => {
         $gte: dateStart,
         $lte: dateEnd,
       },
-      ...req.body.filters,
+      ...req.query.filters,
     });
 
     let result = {};
@@ -67,7 +49,12 @@ router.get("/timed", [body("date")], async (req, res) => {
 
       filteredResult = Object.keys(result).reduce((filtered, key) => {
         if (result[key].length !== 0) {
-          filtered[key] = result[key];
+          let hours = Math.floor(key / 60);
+          let seconds = key % 60;
+          if (hours < 10) hours = `0${hours}`;
+          if (seconds < 10) seconds = `0${seconds}`;
+          let time = hours + ":" + seconds;
+          filtered[time] = result[key];
         }
         return filtered;
       }, {});
@@ -75,7 +62,15 @@ router.get("/timed", [body("date")], async (req, res) => {
       currentMinutes += req.config.tee_time_length;
     }
 
-    success(res, filteredResult);
+    let numberedResult = Object.keys(filteredResult).reduce((filtered, index) => {
+      filtered[index] = filteredResult[index].reduce((numbered, item, i) => {
+        numbered[numberToEnglish[i + 1]] = item;
+        return numbered;
+      }, {});
+      return filtered;
+    }, {});
+
+    success(res, numberedResult);
   } catch (e) {
     error(res, e);
   }

@@ -1,4 +1,5 @@
 const express = require("express");
+const mongoose = require("mongoose");
 const router = express.Router();
 const { body, validationResult } = require("express-validator");
 const { success, error } = require("../utility/jsonio");
@@ -35,13 +36,13 @@ router.post("/", [body("name").exists(), body("price").exists(), body("category"
     if (!errors.isEmpty()) {
       return error(res, errors.array());
     }
-    const product = new Product(...req.body);
+    const product = new Product({ _id: mongoose.Types.ObjectId(), ...req.body });
     await product.save();
     success(res, {
       message: "Product saved!",
     });
   } catch (e) {
-    error(e);
+    error(res, e);
   }
 });
 

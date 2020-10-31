@@ -7,6 +7,7 @@ const { body, validationResult } = require("express-validator");
 const { success, error, caughtError, serveSuccess } = require("../utility/jsonio");
 
 const member = require("../models/member"); // This is supposed to be a mongoose model.
+const upload = require("../middlewares/upload");
 
 // POST /login - This handle member login
 router.post("/login", [body("email").isEmail(), body("password").exists()], (req, res, next) => {
@@ -68,6 +69,7 @@ router.put(
     body("dateOfBirth").exists(),
     body("memberSince").exists(),
   ],
+  upload.single(),
   (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -78,6 +80,7 @@ router.put(
       ...req.body,
       _id: mongoose.Types.ObjectId(),
       password: hashSync(req.body.password, 10),
+      profilePhoto: req.file,
     });
 
     return newMember
@@ -91,7 +94,7 @@ router.put(
 );
 
 // PUT /:id - This will perform any updates to the member
-router.patch("/:id", (req, res, next) => {
+router.patch("/:id", upload.single(), (req, res, next) => {
   member
     .findOneAndUpdate(
       {

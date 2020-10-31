@@ -9,6 +9,15 @@ const schema = mongoose.Schema(
       ref: "member",
       required: true,
     },
+    locked: {
+      type: mongoose.Schema.Types.Boolean,
+      default: true,
+      required: true,
+    },
+    profilePhoto: {
+      type: mongoose.Schema.Types.Mixed,
+      default: {},
+    },
   },
   { timestamps: true }
 );

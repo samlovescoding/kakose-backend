@@ -57,6 +57,7 @@ router.post("/login", [body("email").isEmail(), body("password").exists()], (req
 // PUT /register - This handle member registration
 router.put(
   "/register",
+  upload.single("profilePhoto"),
   [
     body("email").isEmail(),
     body("password").exists(),
@@ -69,7 +70,7 @@ router.put(
     body("dateOfBirth").exists(),
     body("memberSince").exists(),
   ],
-  upload.single(),
+
   (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -94,7 +95,7 @@ router.put(
 );
 
 // PUT /:id - This will perform any updates to the member
-router.patch("/:id", upload.single(), (req, res, next) => {
+router.patch("/:id", (req, res, next) => {
   member
     .findOneAndUpdate(
       {

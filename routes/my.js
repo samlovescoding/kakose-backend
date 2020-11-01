@@ -18,9 +18,9 @@ router.get("/bookings", onlyMembers, async (req, res) => {
   }
 });
 
-router.get("/", async (req, res) => {
+router.get("/", onlyMembers, async (req, res) => {
   try {
-    const member = Member.findOne({
+    const member = await Member.findOne({
       _id: req.member,
     });
     success(res, member);

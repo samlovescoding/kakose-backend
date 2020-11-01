@@ -6,17 +6,13 @@ const schema = mongoose.Schema(
     timing: { type: Date, required: true },
     memberBookedBy: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "member",
+      ref: "members",
       required: true,
     },
     locked: {
       type: mongoose.Schema.Types.Boolean,
       default: true,
       required: true,
-    },
-    profilePhoto: {
-      type: mongoose.Schema.Types.Mixed,
-      default: {},
     },
   },
   { timestamps: true }

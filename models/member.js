@@ -18,6 +18,9 @@ const schema = mongoose.Schema(
     memberType: { type: String, required: true, default: "Junior" },
     dateOfBirth: { type: Date, required: true },
     memberSince: { type: Date, required: true },
+    profilePhoto: {
+      type: mongoose.Schema.Types.Mixed,
+    },
   },
   { timestamps: true }
 );

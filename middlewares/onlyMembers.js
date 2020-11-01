@@ -15,6 +15,7 @@ module.exports = (req, res, next) => {
     }
     let authorization = req.headers.authorization.split(" ")[1];
     req.member = jwt.verify(authorization, process.env.JWT_SECRET);
+    console.log("mewr", req.member);
     next();
   } catch (e) {
     error(res, e);

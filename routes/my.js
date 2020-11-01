@@ -8,8 +8,8 @@ const Booking = require("../models/booking");
 
 router.get("/bookings", onlyMembers, async (req, res) => {
   try {
-    const bookings = await Bookings.find({
-      memberBookedBy: req.member,
+    const bookings = await Booking.find({
+      memberBookedBy: req.member.id,
       ...req.query.filters,
     });
     success(res, bookings);
@@ -18,11 +18,23 @@ router.get("/bookings", onlyMembers, async (req, res) => {
   }
 });
 
+// router.get("/friends", onlyMembers, async (req, res) => {
+//   try {
+//     const bookings = await Booking.find({
+//       memberBookedBy: req.member.id,
+//       ...req.query.filters,
+//     });
+//     success(res, bookings);
+//   } catch (e) {
+//     error(res, e);
+//   }
+// });
+
 router.get("/", onlyMembers, async (req, res) => {
   try {
     const member = await Member.findOne({
-      _id: req.member,
-    });
+      _id: req.member.id,
+    }).select("-password -__v");
     success(res, member);
   } catch (e) {
     error(res, e);

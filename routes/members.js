@@ -129,7 +129,7 @@ router.delete("/:id", (req, res, next) => {
 router.get("/", (req, res, next) => {
   member
     .find(req.body.filters)
-    .select("_id name email memberType")
+    .select("_id name email profilePhoto memberType")
     .exec()
     .then((members) => {
       success(res, members);
@@ -144,7 +144,7 @@ router.get("/:id", (req, res, next) => {
       _id: req.params.id,
       ...req.body.filters,
     })
-    .select("_id name email sex address postalCode phoneNumber memberType dateOfBirth memberSince")
+    .select("-password")
     .exec()
     .then(serveSuccess(res))
     .catch(caughtError(res));

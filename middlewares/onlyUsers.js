@@ -17,6 +17,6 @@ module.exports = (req, res, next) => {
     req.user = jwt.verify(authorization, process.env.JWT_SECRET);
     next();
   } catch (e) {
-    error(res, e);
+    error(res, e, 401);
   }
 };

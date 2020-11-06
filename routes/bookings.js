@@ -8,14 +8,26 @@ const { body, query } = require("express-validator");
 const randomDate = require("../utility/randomDate");
 const numberToEnglish = require("../utility/numberToEnglish");
 
-// GET /timed - Get all bookings of a day divided in times
+// GET / - Get all bookings of a day divided in times
 router.get("/", [query("date").exists()], async (req, res) => {
   try {
-    console.log("You are requesting timed booking. This is a heavily looped route and must be handled client-side.");
+    console.log(
+      "You are requesting timed booking. This is a heavily looped route and must be handled client-side."
+    );
 
     let date = new Date(req.query.date);
-    let dateStart = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0);
-    let dateEnd = new Date(new Date().setDate(dateStart.getDate() + 1));
+    let dateStart = new Date(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate(),
+      0,
+      0,
+      0,
+      0
+    );
+    let dateEnd = new Date(
+      new Date().setDate(dateStart.getDate() + 1)
+    );
 
     // Find all the bookings in between the given date
     let bookings = await booking.find({
@@ -37,12 +49,31 @@ router.get("/", [query("date").exists()], async (req, res) => {
       let thenHours = Math.floor(thenMinutes / 60);
       let thenMin = thenMinutes % 60;
 
-      let from = new Date(date.getFullYear(), date.getMonth(), date.getDate(), currentHours, currentMin, 0, 0);
-      let to = new Date(date.getFullYear(), date.getMonth(), date.getDate(), thenHours, thenMin, 0, 0);
+      let from = new Date(
+        date.getFullYear(),
+        date.getMonth(),
+        date.getDate(),
+        currentHours,
+        currentMin,
+        0,
+        0
+      );
+      let to = new Date(
+        date.getFullYear(),
+        date.getMonth(),
+        date.getDate(),
+        thenHours,
+        thenMin,
+        0,
+        0
+      );
 
       bookings.forEach((slot) => {
         slotTiming = new Date(slot.timing);
-        if (slotTiming.getTime() >= from.getTime() && slotTiming.getTime() <= to.getTime()) {
+        if (
+          slotTiming.getTime() >= from.getTime() &&
+          slotTiming.getTime() <= to.getTime()
+        ) {
           result[currentMinutes].push(slot);
         }
       });
@@ -62,13 +93,19 @@ router.get("/", [query("date").exists()], async (req, res) => {
       currentMinutes += req.config.tee_time_length;
     }
 
-    let numberedResult = Object.keys(filteredResult).reduce((filtered, index) => {
-      filtered[index] = filteredResult[index].reduce((numbered, item, i) => {
-        numbered[numberToEnglish[i + 1]] = item;
-        return numbered;
-      }, {});
-      return filtered;
-    }, {});
+    let numberedResult = Object.keys(filteredResult).reduce(
+      (filtered, index) => {
+        filtered[index] = filteredResult[index].reduce(
+          (numbered, item, i) => {
+            numbered[numberToEnglish[i + 1]] = item;
+            return numbered;
+          },
+          {}
+        );
+        return filtered;
+      },
+      {}
+    );
 
     success(res, numberedResult);
   } catch (e) {
@@ -79,10 +116,19 @@ router.get("/", [query("date").exists()], async (req, res) => {
 // POST / - Create a new booking
 router.post("/", onlyUsers, [body("timing")], async (req, res) => {
   try {
+    let timing = Date.parse(req.body.timing);
+    let year = timing.getUTCFullYear();
+    let month = timing.getUTCMonth() + 1;
+    let date = timing.getUTCDate();
+    let time = "";
+    let slot = "";
+    // Please add a slot field to the booking
+    process.exist();
     let newBooking = new booking({
       _id: mongoose.Types.ObjectId(),
-      timing: Date.parse(req.body.timing),
+      timing,
       memberBookedBy: req.user.id,
+      slot,
     });
     let result = await newBooking.save();
     success(res, result);
@@ -92,17 +138,22 @@ router.post("/", onlyUsers, [body("timing")], async (req, res) => {
 });
 
 // POST /ballot - Create a new booking via ballot
-router.post("/ballot", onlyUsers, [body("date")], async (req, res) => {
-  let date = new Date(req.body.date);
-  let bookingTime = randomDate(date);
-  try {
-    let isValid = false;
-    while (isValid === false) {
-      // This will go into an infinite loop rn.
+router.post(
+  "/ballot",
+  onlyUsers,
+  [body("date")],
+  async (req, res) => {
+    let date = new Date(req.body.date);
+    let bookingTime = randomDate(date);
+    try {
+      let isValid = false;
+      while (isValid === false) {
+        // This will go into an infinite loop rn.
+      }
+    } catch (e) {
+      error(res, e);
     }
-  } catch (e) {
-    error(res, e);
   }
-});
+);
 
 module.exports = router;

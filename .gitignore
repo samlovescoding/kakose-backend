@@ -3,3 +3,4 @@ node_modules
 uploads/*
 routes/resources.js
 !uploads/sample
+temp

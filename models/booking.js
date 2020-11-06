@@ -14,6 +14,7 @@ const schema = mongoose.Schema(
       default: true,
       required: true,
     },
+    slot: mongoose.Schema.Types.String,
   },
   { timestamps: true }
 );

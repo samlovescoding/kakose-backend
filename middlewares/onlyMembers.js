@@ -18,6 +18,6 @@ module.exports = (req, res, next) => {
     console.log("mewr", req.member);
     next();
   } catch (e) {
-    error(res, e);
+    error(res, e, 401);
   }
 };

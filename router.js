@@ -6,6 +6,7 @@ router.use("/members", require("./routes/members"));
 router.use("/config", require("./routes/configurations"));
 router.use("/bookings", require("./routes/bookings"));
 router.use("/products", require("./routes/products"));
+router.use("/clubs", require("./routes/clubs"));
 router.use("/my", require("./routes/my"));
 
 module.exports = router;

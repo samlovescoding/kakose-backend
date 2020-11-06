@@ -39,6 +39,7 @@ router.post("/login", [body("email").isEmail(), body("password").exists()], (req
           );
           return success(res, {
             token,
+            id: testUser._id,
             name: testUser.name,
             email: testUser.email,
             role: testUser.role,

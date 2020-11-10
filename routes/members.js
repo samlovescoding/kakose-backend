@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
+const onlyUsers = require("../middlewares/onlyUsers");
 const { compareSync, hashSync } = require("bcrypt");
 const {
   body,
@@ -70,6 +71,7 @@ router.post(
 router.put(
   "/register",
   upload.single("profilePhoto"),
+  onlyUsers,
   [
     body("email").isEmail(),
     body("password").exists(),
@@ -88,15 +90,17 @@ router.put(
     if (!errors.isEmpty()) {
       return error(res, errors.array());
     }
+    console.log("club", req.user.club);
 
     const newMember = new member({
       ...req.body,
       _id: mongoose.Types.ObjectId(),
       password: hashSync(req.body.password, 10),
       profilePhoto: req.file,
+      club: req.user.club,
     });
 
-    return newMember
+    newMember
       .save()
       .then((result) => {
         result.password = undefined;
@@ -107,23 +111,23 @@ router.put(
 );
 
 // PUT /:id - This will perform any updates to the member
-router.patch("/:id", (req, res, next) => {
-  member
-    .findOneAndUpdate(
-      {
-        _id: req.params.id,
-        ...req.body.filters,
-      },
-      req.body
-    )
-    .exec()
-    .then((result) => {
-      return success(res, {
-        message: "Member was updated.",
-      });
-    })
-    .catch(caughtError(res));
-});
+router.patch(
+  "/:id",
+  upload.single("profilePhoto"),
+  async (req, res, next) => {
+    try {
+      const one = await member.findOneAndUpdate(
+        {
+          _id: req.params.id,
+        },
+        { ...req.body }
+      );
+      success(res, { one, message: "Member was updated" });
+    } catch (e) {
+      error(res, e);
+    }
+  }
+);
 
 // DELETE /:id - This will delete a member.
 router.delete("/:id", (req, res, next) => {
@@ -146,7 +150,16 @@ router.get("/", (req, res, next) => {
     )
     .exec()
     .then((members) => {
-      success(res, members);
+      success(
+        res,
+        members.map((member) => {
+          member["profilePhoto"] =
+            process.env.URL +
+            "uploads/" +
+            member.profilePhoto.filename;
+          return member;
+        })
+      );
     })
     .catch(caughtError(res));
 });

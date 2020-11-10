@@ -15,11 +15,19 @@ const schema = mongoose.Schema(
     address: { type: String, required: true },
     postalCode: { type: String, required: true },
     phoneNumber: { type: String, required: true },
-    memberType: { type: String, required: true, default: "Junior" },
+    memberType: {
+      type: String,
+      required: true,
+      default: "Junior",
+    },
     dateOfBirth: { type: Date, required: true },
     memberSince: { type: Date, required: true },
     profilePhoto: {
       type: mongoose.Schema.Types.Mixed,
+    },
+    club: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
     },
   },
   { timestamps: true }

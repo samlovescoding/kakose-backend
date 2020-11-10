@@ -1,9 +1,12 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const router = express.Router();
-const { body, validationResult } = require("express-validator");
+const {
+  body,
+  validationResult,
+} = require("express-validator");
 const { success, error } = require("../utility/jsonio");
-
+const onlyUsers = require("../middlewares/onlyUsers");
 const Product = require("../models/product");
 
 // Get / - List all the products
@@ -30,21 +33,34 @@ router.get("/:id", async (req, res, next) => {
 });
 
 // POST / - Create a new product
-router.post("/", [body("name").exists(), body("price").exists(), body("category").exists()], async (req, res, next) => {
-  try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return error(res, errors.array());
+router.post(
+  "/",
+  onlyUsers,
+  [
+    body("name").exists(),
+    body("price").exists(),
+    body("category").exists(),
+  ],
+  async (req, res, next) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return error(res, errors.array());
+      }
+      const product = new Product({
+        _id: mongoose.Types.ObjectId(),
+        ...req.body,
+        club: req.user.club,
+      });
+      await product.save();
+      success(res, {
+        message: "Product saved!",
+      });
+    } catch (e) {
+      error(res, e);
     }
-    const product = new Product({ _id: mongoose.Types.ObjectId(), ...req.body });
-    await product.save();
-    success(res, {
-      message: "Product saved!",
-    });
-  } catch (e) {
-    error(res, e);
   }
-});
+);
 
 // PATCH /:id - Update an existing product
 router.patch("/:id", async (req, res, next) => {

@@ -53,7 +53,7 @@ router.patch("/member-photo/:id", upload.single("profilePhoto"), async (req, res
       }
     );
     console.log(__dirname, "uploads", member.profilePhoto.fileName);
-    const oldFilePath = path.join(__dirname, "uploads", member.profilePhoto.filename);
+    const oldFilePath = path.join(__dirname, "../uploads", member.profilePhoto.filename);
     console.log(oldFilePath);
     fs.unlinkSync(oldFilePath);
     success(res, {

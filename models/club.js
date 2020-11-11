@@ -9,7 +9,7 @@ const schema = mongoose.Schema(
     tee_time_length: { type: Number },
     tee_time_max_bookings: { type: Number },
     club_opening_time: { type: Number, default: 0 },
-    club_closing_time: { type: Number, default: 1440 },
+    club_closing_time: { type: Number, default: 1439 },
   },
   { timestamps: true }
 );

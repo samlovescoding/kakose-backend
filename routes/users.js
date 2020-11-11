@@ -69,7 +69,10 @@ router.post(
 );
 
 // PUT /register - This handle user registration
-router.put("/register", onlyUsers, (req, res, next) => {
+//
+// This route must not have user authorization to
+// allow to create users while installation
+router.put("/register", (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return error(res, errors.array());

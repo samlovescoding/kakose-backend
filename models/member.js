@@ -16,9 +16,8 @@ const schema = mongoose.Schema(
     postalCode: { type: String, required: true },
     phoneNumber: { type: String, required: true },
     memberType: {
-      type: String,
-      required: true,
-      default: "Junior",
+      type: mongoose.Schema.Types.Mixed,
+      ref: "memberTypes",
     },
     dateOfBirth: { type: Date, required: true },
     memberSince: { type: Date, required: true },

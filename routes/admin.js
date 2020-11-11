@@ -75,6 +75,15 @@ router.get("/products", onlyUsers, async (req, res, next) => {
   }
 });
 
+router.get("/product-types", onlyUsers, async (req, res) => {
+  try {
+    const categories = await Product.find({ club: req.user.club }).select("category").distinct("category");
+    success(res, categories);
+  } catch (e) {
+    error(res, e);
+  }
+});
+
 router.get("/profile", onlyUsers, async (req, res) => {
   try {
     success(res, req.user);

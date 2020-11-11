@@ -11,7 +11,7 @@ const schema = mongoose.Schema(
     },
     locked: {
       type: mongoose.Schema.Types.Boolean,
-      default: true,
+      default: false,
       required: true,
     },
     slot: mongoose.Schema.Types.String,

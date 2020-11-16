@@ -253,7 +253,80 @@ router.get("/slots/:stamp", onlyUsers, async ({ params: { stamp }, user: { club 
       throw new Error("No tee sheet found on " + stamp);
     }
 
+    success(res, teeSheet.slots);
+  } catch (e) {
+    error(res, e);
+  }
+});
+
+router.post("/booking", onlyUsers, async (req, res) => {
+  try {
+    let teeSheet = await TeeSheet.findOne({
+      stamp: req.body.day,
+      club: req.user.club,
+    });
+    teeSheet.slots = teeSheet.slots.map((slot) => {
+      if (slot.code === req.body.slot) {
+        let bookings = slot.bookings;
+        bookings.push({ member: req.body.member, type: req.body.type });
+        return {
+          time: slot.time,
+          code: slot.code,
+          max: slot.max,
+          bookings,
+          requests: slot.requests,
+          available: slot.available - 1,
+          locked: slot.locked,
+          hidden: slot.hidden,
+        };
+      }
+      return slot;
+    });
+
+    await teeSheet.save();
     success(res, teeSheet);
+  } catch (e) {
+    error(res, e);
+  }
+});
+
+router.patch("/bookings-delete", async (req, res) => {
+  try {
+    const teeSheet = await TeeSheet.findOne({
+      _id: req.body.sheet,
+    });
+
+    if (teeSheet == null) {
+      throw new Error("Please pass a valid tee sheet id!");
+    }
+
+    teeSheet.slots = teeSheet.slots.map((slot) => {
+      if (slot.code === req.body.slot) {
+        let adder = 0;
+        let bookings = slot.bookings.filter((booking) => {
+          if (booking.member === req.body.member) {
+            adder = adder + 1;
+            return false;
+          }
+          return true;
+        });
+        return {
+          time: slot.time,
+          code: slot.code,
+          max: slot.max,
+          bookings,
+          requests: slot.requests,
+          available: slot.available + adder,
+          locked: slot.locked,
+          hidden: slot.hidden,
+        };
+      }
+      return slot;
+    });
+    await teeSheet.save();
+    success(res, {
+      message: "Booking was delete",
+    });
   } catch (e) {
     error(res, e);
   }

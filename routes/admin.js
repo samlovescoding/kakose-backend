@@ -11,7 +11,7 @@ const Booking = require("../models/booking");
 const Club = require("../models/club");
 const Member = require("../models/member");
 const MemberType = require("../models/memberType");
-const Order = require("../models/order");
+const TeeSheet = require("../models/teeSheet");
 const Product = require("../models/product");
 const User = require("../models/user");
 
@@ -238,6 +238,22 @@ router.delete("/memberTypes/:id", onlyUsers, async (req, res, next) => {
     success(res, {
       message: "Member Type was deleted",
     });
+  } catch (e) {
+    error(res, e);
+  }
+});
+
+router.get("/slots/:stamp", onlyUsers, async ({ params: { stamp }, user: { club } }, res) => {
+  try {
+    const teeSheet = await TeeSheet.findOne({
+      stamp,
+      club,
+    });
+    if (teeSheet === null) {
+      throw new Error("No tee sheet found on " + stamp);
+    }
+
+    success(res, teeSheet);
   } catch (e) {
     error(res, e);
   }

@@ -32,6 +32,7 @@ router.post(
       .findOne({
         email: email,
       })
+      .populate("membership.club")
       .exec()
       .then((testMember) => {
         if (testMember) {

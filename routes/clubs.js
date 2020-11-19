@@ -26,6 +26,17 @@ router.post("/", async (req, res) => {
   }
 });
 
+router.patch("/:id", async (req, res) => {
+  try {
+    const club = await Club.findOneAndUpdate({ _id: req.params.id }, { ...req.body });
+    success(res, {
+      message: "Club updated",
+    });
+  } catch (e) {
+    error(res, e);
+  }
+});
+
 router.delete("/", async (req, res, next) => {
   try {
     await Club.deleteOne({ ...req.body });

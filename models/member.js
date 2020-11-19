@@ -1,5 +1,14 @@
 const mongoose = require("mongoose");
 
+const membershipSchema = mongoose.Schema({
+  type: { type: mongoose.Schema.Types.Mixed, ref: "memberTypes" },
+  since: { type: Date, default: null },
+  validity: { type: Number, default: 30 },
+  expired: { type: Boolean, default: false },
+  banned: { type: Boolean, default: false },
+  club: { type: mongoose.Schema.Types.ObjectId, ref: "club", required: true },
+});
+
 const schema = mongoose.Schema(
   {
     _id: mongoose.Schema.Types.ObjectId,
@@ -15,19 +24,11 @@ const schema = mongoose.Schema(
     address: { type: String, required: true },
     postalCode: { type: String, required: true },
     phoneNumber: { type: String, required: true },
-    memberType: {
-      type: mongoose.Schema.Types.Mixed,
-      ref: "memberTypes",
-    },
     dateOfBirth: { type: Date, required: true },
-    memberSince: { type: Date, required: true },
     profilePhoto: {
       type: mongoose.Schema.Types.Mixed,
     },
-    club: {
-      type: mongoose.Schema.Types.ObjectId,
-      required: true,
-    },
+    membership: [membershipSchema],
   },
   { timestamps: true }
 );

@@ -26,11 +26,11 @@ const { compareSync, hashSync } = require("bcrypt");
 router.get("/members", onlyUsers, async (req, res) => {
   try {
     const members = await Member.find({
-      club: req.user.club,
+      "membership.club": req.user.club,
     })
       .select("-password -dateOfBirth -memberSince -updatedAt -createdAt")
       .populate({
-        path: "memberType",
+        path: "membership.type",
       });
     success(
       res,
@@ -59,6 +59,25 @@ router.patch("/member-photo/:id", upload.single("profilePhoto"), async (req, res
     success(res, {
       message: "Photo was updated",
     });
+  } catch (e) {
+    error(res, e);
+  }
+});
+
+router.patch("/update-membership/:id/:membershipId", async (req, res) => {
+  try {
+    const { id: _id, membershipId } = req.params;
+    let member = await Member.findOne({ _id });
+    member.membership = member.membership.map((_) => {
+      if (_._id == membershipId) {
+        console.log({ ..._.toObject(), ...req.body });
+        return { ..._.toObject(), ...req.body };
+      }
+      return _;
+    });
+    await member.save();
+
+    success(res, { message: "Updated membership" });
   } catch (e) {
     error(res, e);
   }
@@ -265,26 +284,64 @@ router.post("/booking", onlyUsers, async (req, res) => {
       stamp: req.body.day,
       club: req.user.club,
     });
+    if (req.body.type === "locked") {
+      console.log("Locked", req.body.type);
+      teeSheet.slots = teeSheet.slots.map((slot) => {
+        if (slot.code === req.body.slot) {
+          let bookings = slot.bookings;
+          bookings.push({ member: req.body.member, type: req.body.type });
+          return {
+            time: slot.time,
+            code: slot.code,
+            max: slot.max,
+            bookings,
+            requests: slot.requests,
+            available: slot.available - 1,
+            locked: slot.locked,
+            hidden: slot.hidden,
+          };
+        }
+        return slot;
+      });
+    }
+    if (req.body.type === "ballot") {
+      console.log("Ballot", req.body.type);
+      teeSheet.ballotEntries = [...teeSheet.ballotEntries, { ...req.body }];
+    }
+
+    await teeSheet.save();
+    success(res, teeSheet);
+  } catch (e) {
+    error(res, e);
+  }
+});
+
+router.patch("/sheet-update", onlyUsers, async (req, res) => {
+  try {
+    const { sheet: sheetId, slot: slotCode, hidden, locked } = req.body;
+
+    const teeSheet = await TeeSheet.findOne({
+      _id: sheetId,
+    });
+
+    if (teeSheet == null) {
+      console.log(teeSheet);
+      throw new Error("Tee sheet not found");
+    }
+
     teeSheet.slots = teeSheet.slots.map((slot) => {
-      if (slot.code === req.body.slot) {
-        let bookings = slot.bookings;
-        bookings.push({ member: req.body.member, type: req.body.type });
-        return {
-          time: slot.time,
-          code: slot.code,
-          max: slot.max,
-          bookings,
-          requests: slot.requests,
-          available: slot.available - 1,
-          locked: slot.locked,
-          hidden: slot.hidden,
-        };
+      if (slot.code === slotCode) {
+        console.log(hidden, locked);
+        slot = { ...slot, hidden, locked };
       }
       return slot;
     });
 
     await teeSheet.save();
-    success(res, teeSheet);
+
+    success(res, {
+      message: "Slot updated",
+    });
   } catch (e) {
     error(res, e);
   }
@@ -326,6 +383,41 @@ router.patch("/bookings-delete", async (req, res) => {
     await teeSheet.save();
     success(res, {
       message: "Booking was delete",
+    });
+  } catch (e) {
+    error(res, e);
+  }
+});
+
+router.patch("/import-member", onlyUsers, async (req, res) => {
+  try {
+    const { email } = req.body;
+    const member = await Member.findOne({ email });
+
+    // If member does not exist throw an error
+    if (member == null) {
+      throw new Error("Email is not in use. Please register new member.");
+    }
+
+    // If member already belongs to club throw an error
+    member.membership.forEach((clubship) => {
+      if (clubship.club == req.user.club) {
+        throw new Error("Member is already registered to the club.");
+      }
+    });
+
+    member.membership = [
+      ...member.membership,
+      {
+        ...req.body.membership,
+        club: req.user.club,
+      },
+    ];
+
+    await member.save();
+
+    success(res, {
+      message: "Member imported!",
     });
   } catch (e) {
     error(res, e);

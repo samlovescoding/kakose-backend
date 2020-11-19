@@ -1,5 +1,11 @@
 const mongoose = require("mongoose");
-const uniqueValidator = require("mongoose-unique-validator");
+
+const ballotEntrySchema = mongoose.Schema({
+  day: String,
+  slot: Number,
+  type: String,
+  member: { type: mongoose.Schema.Types.ObjectId, ref: "members" },
+});
 
 const schema = mongoose.Schema(
   {
@@ -13,6 +19,10 @@ const schema = mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "club",
     },
+    sheetType: String,
+    ballot: Boolean,
+    ballotEntries: [ballotEntrySchema],
+    ballotRunDate: String,
   },
   { timestamps: true }
 );

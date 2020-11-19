@@ -86,6 +86,7 @@ router.put(
       password: hashSync(req.body.password, 10),
       profilePhoto: req.file,
       club: req.user.club,
+      membership: JSON.parse(req.body.membership),
     });
 
     newMember
@@ -153,7 +154,10 @@ router.get("/:id", async (req, res, next) => {
       })
       .select("-password")
       .populate({
-        path: "memberType",
+        path: "membership.type",
+      })
+      .populate({
+        path: "membership.club",
       });
     memberSingle["profilePhoto"] = process.env.URL + "uploads/" + memberSingle.profilePhoto.filename;
     success(res, memberSingle);

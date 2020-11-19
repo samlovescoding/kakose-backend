@@ -34,7 +34,10 @@ router.get("/", onlyMembers, async (req, res) => {
   try {
     const member = await Member.findOne({
       _id: req.member.id,
-    }).select("-password -__v");
+    })
+      .select("-password -__v")
+      .populate("membership.club")
+      .populate("membership.type");
     success(res, member);
   } catch (e) {
     error(res, e);

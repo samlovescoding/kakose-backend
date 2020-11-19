@@ -5,55 +5,69 @@ const jwt = require("jsonwebtoken");
 const onlyUsers = require("../middlewares/onlyUsers");
 const { compareSync, hashSync } = require("bcrypt");
 const { body, validationResult } = require("express-validator");
-const { success, error, caughtError, serveSuccess } = require("../utility/jsonio");
+const {
+  success,
+  error,
+  caughtError,
+  serveSuccess,
+} = require("../utility/jsonio");
 
 const member = require("../models/member"); // This is supposed to be a mongoose model.
 const upload = require("../middlewares/upload");
 
 // POST /login - This handle member login
-router.post("/login", [body("email").isEmail(), body("password").exists()], (req, res, next) => {
-  const errors = validationResult(req);
+router.post(
+  "/login",
+  [body("email").isEmail(), body("password").exists()],
+  (req, res, next) => {
+    const errors = validationResult(req);
 
-  if (!errors.isEmpty()) {
-    return error(res, errors.array());
-  }
+    if (!errors.isEmpty()) {
+      return error(res, errors.array());
+    }
 
-  const email = req.body.email;
-  const password = req.body.password;
-  member
-    .findOne({
-      email: email,
-    })
-    .exec()
-    .then((testMember) => {
-      if (testMember) {
-        if (compareSync(password, testMember.password)) {
-          testMember.password = undefined;
-          let token = jwt.sign(
-            {
-              id: testMember._id,
-              role: testMember.role,
+    const email = req.body.email;
+    const password = req.body.password;
+    member
+      .findOne({
+        email: email,
+      })
+      .exec()
+      .then((testMember) => {
+        if (testMember) {
+          if (compareSync(password, testMember.password)) {
+            testMember.password = undefined;
+            let token = jwt.sign(
+              {
+                id: testMember._id,
+                name: testMember.name,
+                email: testMember.email,
+                type: "member",
+              },
+              process.env.JWT_SECRET
+            );
+            return success(res, {
+              token,
               name: testMember.name,
               email: testMember.email,
-              type: "member",
-            },
-            process.env.JWT_SECRET
-          );
-          return success(res, {
-            token,
-            name: testMember.name,
-            email: testMember.email,
-            role: testMember.role,
-          });
+              membership: testMember.membership,
+              sex: testMember.sex,
+              address: testMember.address,
+              postalCode: testMember.postalCode,
+              phoneNumber: testMember.phoneNumber,
+              dateOfBirth: testMember.dateOfBirth,
+              profilePhoto: testMember.profilePhoto,
+            });
+          } else {
+            return error(res, "Incorrect password!");
+          }
         } else {
-          return error(res, "Incorrect password!");
+          return error(res, "Email was not found!");
         }
-      } else {
-        return error(res, "Email was not found!");
-      }
-    })
-    .catch(caughtError);
-});
+      })
+      .catch(caughtError);
+  }
+);
 
 // PUT /register - This handle member registration
 router.put(
@@ -129,13 +143,17 @@ router.delete("/:id", (req, res, next) => {
 // GET / - Lists all members
 router.get("/", async (req, res, next) => {
   try {
-    const members = await member.find().select("-password -dateOfBirth -memberSince -updatedAt -createdAt").populate({
-      path: "memberType",
-    });
+    const members = await member
+      .find()
+      .select("-password -dateOfBirth -memberSince -updatedAt -createdAt")
+      .populate({
+        path: "memberType",
+      });
     success(
       res,
       members.map((member) => {
-        member["profilePhoto"] = process.env.URL + "uploads/" + member.profilePhoto.filename;
+        member["profilePhoto"] =
+          process.env.URL + "uploads/" + member.profilePhoto.filename;
         return member;
       })
     );
@@ -159,7 +177,8 @@ router.get("/:id", async (req, res, next) => {
       .populate({
         path: "membership.club",
       });
-    memberSingle["profilePhoto"] = process.env.URL + "uploads/" + memberSingle.profilePhoto.filename;
+    memberSingle["profilePhoto"] =
+      process.env.URL + "uploads/" + memberSingle.profilePhoto.filename;
     success(res, memberSingle);
   } catch (e) {
     error(res, e);

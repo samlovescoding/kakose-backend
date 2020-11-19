@@ -11,5 +11,6 @@ router.use("/admin", require("./routes/admin"));
 router.use("/templates", require("./routes/teeTemplates"));
 router.use("/sheets", require("./routes/teeSheets"));
 router.use("/ballot", require("./routes/ballot"));
+router.use("/api", require("./routes/frontend"));
 
 module.exports = router;

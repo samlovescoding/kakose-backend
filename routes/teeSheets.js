@@ -38,7 +38,10 @@ router.post("/:stamp", onlyUsers, async (req, res) => {
 
 router.patch("/:id", onlyUsers, async (req, res) => {
   try {
-    const sheet = await TeeSheet.findOneAndUpdate({ _id: req.params.id }, { ...req.body });
+    const sheet = await TeeSheet.findOneAndUpdate(
+      { _id: req.params.id },
+      { ...req.body }
+    );
     success(res, {
       message: "Sheet was updated",
       updates: { ...req.body },

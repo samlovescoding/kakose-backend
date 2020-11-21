@@ -35,7 +35,8 @@ router.get("/members", onlyUsers, async (req, res) => {
     success(
       res,
       members.map((member) => {
-        member["profilePhoto"] = process.env.URL + "uploads/" + member.profilePhoto.filename;
+        member["profilePhoto"] =
+          process.env.URL + "uploads/" + member.profilePhoto.filename;
         return member;
       })
     );
@@ -44,25 +45,33 @@ router.get("/members", onlyUsers, async (req, res) => {
   }
 });
 
-router.patch("/member-photo/:id", upload.single("profilePhoto"), async (req, res) => {
-  try {
-    const member = await Member.findOneAndUpdate(
-      { _id: req.params.id },
-      {
-        profilePhoto: req.file,
-      }
-    );
-    console.log(__dirname, "uploads", member.profilePhoto.fileName);
-    const oldFilePath = path.join(__dirname, "../uploads", member.profilePhoto.filename);
-    console.log(oldFilePath);
-    fs.unlinkSync(oldFilePath);
-    success(res, {
-      message: "Photo was updated",
-    });
-  } catch (e) {
-    error(res, e);
+router.patch(
+  "/member-photo/:id",
+  upload.single("profilePhoto"),
+  async (req, res) => {
+    try {
+      const member = await Member.findOneAndUpdate(
+        { _id: req.params.id },
+        {
+          profilePhoto: req.file,
+        }
+      );
+      console.log(__dirname, "uploads", member.profilePhoto.fileName);
+      const oldFilePath = path.join(
+        __dirname,
+        "../uploads",
+        member.profilePhoto.filename
+      );
+      console.log(oldFilePath);
+      fs.unlinkSync(oldFilePath);
+      success(res, {
+        message: "Photo was updated",
+      });
+    } catch (e) {
+      error(res, e);
+    }
   }
-});
+);
 
 router.patch("/update-membership/:id/:membershipId", async (req, res) => {
   try {
@@ -96,7 +105,9 @@ router.get("/products", onlyUsers, async (req, res, next) => {
 
 router.get("/product-types", onlyUsers, async (req, res) => {
   try {
-    const categories = await Product.find({ club: req.user.club }).select("category").distinct("category");
+    const categories = await Product.find({ club: req.user.club })
+      .select("category")
+      .distinct("category");
     success(res, categories);
   } catch (e) {
     error(res, e);
@@ -113,7 +124,10 @@ router.get("/profile", onlyUsers, async (req, res) => {
 
 router.patch("/update-profile", onlyUsers, async (req, res) => {
   try {
-    const user = await User.findOneAndUpdate({ _id: req.user.id }, { ...req.body });
+    const user = await User.findOneAndUpdate(
+      { _id: req.user.id },
+      { ...req.body }
+    );
     success(res, {
       message: "User Profile was updated",
     });
@@ -239,7 +253,11 @@ router.get("/memberTypes", onlyUsers, async (req, res, next) => {
 
 router.post("/memberTypes", onlyUsers, async (req, res, next) => {
   try {
-    const memberType = new MemberType({ _id: mongoose.Types.ObjectId(), ...req.body, club: req.user.club });
+    const memberType = new MemberType({
+      _id: mongoose.Types.ObjectId(),
+      ...req.body,
+      club: req.user.club,
+    });
     await memberType.save();
     success(res, {
       message: "Member Type was created",
@@ -262,21 +280,25 @@ router.delete("/memberTypes/:id", onlyUsers, async (req, res, next) => {
   }
 });
 
-router.get("/slots/:stamp", onlyUsers, async ({ params: { stamp }, user: { club } }, res) => {
-  try {
-    const teeSheet = await TeeSheet.findOne({
-      stamp,
-      club,
-    });
-    if (teeSheet === null) {
-      throw new Error("No tee sheet found on " + stamp);
-    }
+router.get(
+  "/slots/:stamp",
+  onlyUsers,
+  async ({ params: { stamp }, user: { club } }, res) => {
+    try {
+      const teeSheet = await TeeSheet.findOne({
+        stamp,
+        club,
+      });
+      if (teeSheet === null) {
+        throw new Error("No tee sheet found on " + stamp);
+      }
 
-    success(res, teeSheet.slots);
-  } catch (e) {
-    error(res, e);
+      success(res, teeSheet.slots);
+    } catch (e) {
+      error(res, e);
+    }
   }
-});
+);
 
 router.post("/booking", onlyUsers, async (req, res) => {
   try {
@@ -331,8 +353,8 @@ router.patch("/sheet-update", onlyUsers, async (req, res) => {
 
     teeSheet.slots = teeSheet.slots.map((slot) => {
       if (slot.code === slotCode) {
-        console.log(hidden, locked);
-        slot = { ...slot, hidden, locked };
+        slot.hidden = hidden;
+        slot.locked = locked;
       }
       return slot;
     });

@@ -25,9 +25,7 @@ const schema = mongoose.Schema(
     postalCode: { type: String, required: true },
     phoneNumber: { type: String, required: true },
     dateOfBirth: { type: Date, required: true },
-    profilePhoto: {
-      type: mongoose.Schema.Types.Mixed,
-    },
+    profilePhoto: mongoose.Schema.Types.Mixed,
     membership: [membershipSchema],
   },
   { timestamps: true }

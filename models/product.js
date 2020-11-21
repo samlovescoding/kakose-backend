@@ -19,6 +19,7 @@ const schema = mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       required: true,
     },
+    photo: mongoose.Schema.Types.Mixed,
   },
   { timestamps: true }
 );

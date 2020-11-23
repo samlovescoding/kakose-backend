@@ -12,6 +12,7 @@ const schema = mongoose.Schema(
     club_closing_time: { type: Number, default: 1439 },
     ballot: { type: Boolean, default: false },
     ballotDays: { type: Number, default: 3 },
+    location: mongoose.Schema.Types.Mixed,
   },
   { timestamps: true }
 );

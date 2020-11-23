@@ -68,6 +68,7 @@ router.post("/:id", onlyUsers, async (req, res) => {
                 // Booking is available in spot
                 slots[i].available = slots[i].available - 1;
                 slots[i].bookings.push(blankEntry);
+                console.log("Found the ideal slot");
                 // slots[i] = {
                 //   ...slot,
                 //   // Decrease availability

@@ -141,11 +141,37 @@ router.get("/bookings", memberAuth, async (req, res) => {
 
 router.post("/book/:stamp/:slot", memberAuth, async (req, res) => {
   try {
-    const teeSheet = TeeSheet.find({
+    const teeSheet = await TeeSheet.findOne({
       club: req.club,
       stamp: req.params.stamp,
     });
-    console.log(Object.values(teeSheet.toObject()));
+    let blankEntry = { member: req.member.id, type: "locked" };
+    if (!teeSheet) {
+      throw new Error("Could not find a tee sheet!");
+    }
+    if (teeSheet.ballot === true) {
+      teeSheet.ballotEntries.push(blankEntry);
+    } else {
+      let foundSlot = false;
+      teeSheet.slots.forEach((slot, index) => {
+        if (slot.code == req.params.slot) {
+          foundSlot = true;
+          if (slot.available > 0) {
+            teeSheet.slots[index].available =
+              teeSheet.slots[index].available - 1;
+            teeSheet.slots[index].bookings.push(blankEntry);
+          } else {
+            throw new Error(
+              "Time slot is already full! Please select a different time slot."
+            );
+          }
+        }
+      });
+      if (!foundSlot) {
+        throw new Error("Could not find the slot!");
+      }
+    }
+    await teeSheet.save();
     success(res, {
       message: "Booking successful.",
     });

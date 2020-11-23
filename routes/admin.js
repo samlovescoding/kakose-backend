@@ -307,27 +307,18 @@ router.post("/booking", onlyUsers, async (req, res) => {
       club: req.user.club,
     });
     if (req.body.type === "locked") {
-      console.log("Locked", req.body.type);
-      teeSheet.slots = teeSheet.slots.map((slot) => {
+      teeSheet.slots = teeSheet.slots.map((slot, index) => {
         if (slot.code === req.body.slot) {
-          let bookings = slot.bookings;
-          bookings.push({ member: req.body.member, type: req.body.type });
-          return {
-            time: slot.time,
-            code: slot.code,
-            max: slot.max,
-            bookings,
-            requests: slot.requests,
-            available: slot.available - 1,
-            locked: slot.locked,
-            hidden: slot.hidden,
-          };
+          teeSheet.slots[index].bookings.push({
+            member: req.body.member,
+            type: req.body.type,
+          });
+          teeSheet.slots[index].available = teeSheet.slots[index].available - 1;
         }
         return slot;
       });
     }
     if (req.body.type === "ballot") {
-      console.log("Ballot", req.body.type);
       teeSheet.ballotEntries = [...teeSheet.ballotEntries, { ...req.body }];
     }
 

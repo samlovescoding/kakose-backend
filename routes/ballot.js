@@ -64,14 +64,17 @@ router.post("/:id", onlyUsers, async (req, res) => {
             if (slot.code === entry.slot) {
               // Found the ideal spot
               if (slot.available > 0) {
+                // Add entry to bookings
                 // Booking is available in spot
-                slots[i] = {
-                  ...slot,
-                  // Decrease availability
-                  available: slot.available - 1,
-                  // Add a new booking
-                  bookings: [...slot.bookings, blankEntry],
-                };
+                slots[i].available = slots[i].available - 1;
+                slots[i].bookings.push(blankEntry);
+                // slots[i] = {
+                //   ...slot,
+                //   // Decrease availability
+                //   available: slot.available - 1,
+                //   // Add a new booking
+                //   bookings: [...slot.bookings, blankEntry],
+                // };
                 // console.log("Found Ballot Spot by first match");
                 foundSlot = true;
               }
@@ -86,9 +89,13 @@ router.post("/:id", onlyUsers, async (req, res) => {
                   } else {
                     let slot = slots[slotIndex];
                     if (slot.available > 0) {
-                      slot.available = slot.available - 1;
-                      slot.bookings = [...slot.bookings, blankEntry];
-                      slots[slotIndex] = slot;
+                      // Add entry to bookings
+                      slots[slotIndex].available =
+                        slots[slotIndex].available - 1;
+                      slots[slotIndex].bookings.push(blankEntry);
+                      // slot.available = slot.available - 1;
+                      // slot.bookings = [...slot.bookings, blankEntry];
+                      // slots[slotIndex] = slot;
                       foundSlot = true;
                     }
                   }
@@ -100,6 +107,7 @@ router.post("/:id", onlyUsers, async (req, res) => {
                     canFindSlotBelow = false;
                   } else {
                     if (slot.available > 0) {
+                      // Add entry to bookings
                       slot.available = slot.available - 1;
                       slots.bookings = [...slot.bookings, blankEntry];
                       slots[slotIndex] = slot;

@@ -78,8 +78,38 @@ router.get("/bookings", memberAuth, async (req, res) => {
     //   club: req.club,
     // }).populate("slots.bookings.member");
 
+    let queryModifier = {};
+
+    if (req.body.from) {
+      queryModifier = {
+        stamp: {
+          $gte: req.body.from,
+        },
+      };
+    } else if (req.body.to) {
+      queryModifier = {
+        stamp: {
+          $lte: req.body.from,
+        },
+      };
+    } else if (req.body.from && req.body.to) {
+      queryModifier = {
+        stamp: {
+          $gte: req.body.from,
+          $lte: req.body.to,
+        },
+      };
+    }
+
+    if (req.body.on) {
+      queryModifier = {
+        stamp: req.body.on,
+      };
+    }
+
     let teeSheets = await TeeSheet.find({
-      club: mongoose.Types.ObjectId("5fab3893f2a1534ba05de99c"),
+      club: req.club,
+      ...queryModifier,
     }).populate({
       path: "slots.bookings.member",
       select: "name email profilePhoto",
@@ -88,9 +118,10 @@ router.get("/bookings", memberAuth, async (req, res) => {
     teeSheets.forEach((sheet) => {
       sheet.slots.forEach((slot) => {
         slot.bookings.forEach((booking) => {
-          console.log(booking);
           if (booking.member._id == req.member.id) {
-            slots.push(slot);
+            console.log(slot);
+            slots.push({ ...slot.toObject() });
+            //console.log(Object.keys(slot.toObject()));
           }
         });
       });
@@ -103,6 +134,32 @@ router.get("/bookings", memberAuth, async (req, res) => {
       slots,
       ballot: ballotEntries,
     });
+  } catch (e) {
+    error(res, e);
+  }
+});
+
+router.post("/book/:stamp/:slot", memberAuth, async (req, res) => {
+  try {
+    const teeSheet = TeeSheet.find({
+      club: req.club,
+      stamp: req.params.stamp,
+    });
+    console.log(Object.values(teeSheet.toObject()));
+    success(res, {
+      message: "Booking successful.",
+    });
+  } catch (e) {
+    error(res, e);
+  }
+});
+
+router.get("/shop", memberAuth, async (req, res) => {
+  try {
+    const products = await Product.find({
+      club: req.club,
+    });
+    success(res, products);
   } catch (e) {
     error(res, e);
   }

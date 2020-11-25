@@ -188,6 +188,19 @@ router.get("/shop", memberAuth, async (req, res) => {
   }
 });
 
+router.get("/members", memberAuth, async (req, res) => {
+  try {
+    const members = await Member.find({
+      club: req.member.club,
+    })
+      .select("-password")
+      .limit(20);
+    success(res, members);
+  } catch (e) {
+    error(res, e);
+  }
+});
+
 router.get("/search", memberAuth, async (req, res) => {
   try {
     console.log(req.query);

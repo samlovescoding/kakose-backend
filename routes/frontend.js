@@ -157,13 +157,10 @@ router.post("/book/:stamp/:slot", memberAuth, async (req, res) => {
         if (slot.code == req.params.slot) {
           foundSlot = true;
           if (slot.available > 0) {
-            teeSheet.slots[index].available =
-              teeSheet.slots[index].available - 1;
+            teeSheet.slots[index].available = teeSheet.slots[index].available - 1;
             teeSheet.slots[index].bookings.push(blankEntry);
           } else {
-            throw new Error(
-              "Time slot is already full! Please select a different time slot."
-            );
+            throw new Error("Time slot is already full! Please select a different time slot.");
           }
         }
       });
@@ -186,6 +183,16 @@ router.get("/shop", memberAuth, async (req, res) => {
       club: req.club,
     });
     success(res, products);
+  } catch (e) {
+    error(res, e);
+  }
+});
+
+router.get("/search", memberAuth, async (req, res) => {
+  try {
+    console.log(req.query);
+    const members = await Member.find({ $text: { $search: req.query.query }, club: req.member.club }).select("-password");
+    success(res, members);
   } catch (e) {
     error(res, e);
   }

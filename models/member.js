@@ -31,4 +31,6 @@ const schema = mongoose.Schema(
   { timestamps: true }
 );
 
+schema.index({ name: "text" });
+
 module.exports = mongoose.model("members", schema);

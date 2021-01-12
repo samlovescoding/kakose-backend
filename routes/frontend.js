@@ -145,7 +145,12 @@ router.post("/book/:stamp/:slot", memberAuth, async (req, res) => {
       club: req.club,
       stamp: req.params.stamp,
     });
-    let blankEntry = { member: req.member.id, type: "locked" };
+    let blankEntries = req.body.bookings.map((bookings) => {
+      return {
+        member: bookings._id,
+        type: "locked",
+      };
+    });
     if (!teeSheet) {
       throw new Error("Could not find a tee sheet!");
     }
@@ -157,8 +162,11 @@ router.post("/book/:stamp/:slot", memberAuth, async (req, res) => {
         if (slot.code == req.params.slot) {
           foundSlot = true;
           if (slot.available > 0) {
-            teeSheet.slots[index].available = teeSheet.slots[index].available - 1;
-            teeSheet.slots[index].bookings.push(blankEntry);
+            teeSheet.slots[index].available = teeSheet.slots[index].available - blankEntries.length;
+            teeSheet.slots[index].bookings = [];
+            for (const blankEntry of blankEntries) {
+              teeSheet.slots[index].bookings.push(blankEntry);
+            }
           } else {
             throw new Error("Time slot is already full! Please select a different time slot.");
           }
@@ -177,6 +185,8 @@ router.post("/book/:stamp/:slot", memberAuth, async (req, res) => {
   }
 });
 
+router.get("/");
+
 router.get("/shop", memberAuth, async (req, res) => {
   try {
     const products = await Product.find({
@@ -190,8 +200,9 @@ router.get("/shop", memberAuth, async (req, res) => {
 
 router.get("/members", memberAuth, async (req, res) => {
   try {
+    const club = req.club;
     const members = await Member.find({
-      club: req.member.club,
+      "membership.club": club,
     })
       .select("-password")
       .limit(20);
